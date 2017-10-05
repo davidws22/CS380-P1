@@ -1,0 +1,65 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.Scanner;
+import java.io.PrintStream;
+
+//ip address to connect:
+// 18.221.102.182 
+
+public class ChatClient
+{
+    
+    public static void main(String args[]) throws IOException
+    {
+	try(Socket socket = new Socket("18.221.102.182", 38001)){
+	    // upon successful connection to the server, this socket will be used to
+	    // communicate with the server. However, the serves needs a new socket
+	    // so that it can continue to listen to the original socker for connection
+	    // requests while tending to the needs of the connected client
+	   
+    	
+	    //gets the socket's output stream and opens an output stream
+	    //PrintWriter out = new PrintWriter (socket.getOutputStream(), true);
+	    InputStream is = socket.getInputStream();
+	    InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+	    BufferedReader br = new BufferedReader(isr);
+	    //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+	    OutputStream os = socket.getOutputStream();
+	    PrintStream out = new PrintStream(os);
+	    Scanner sc = new Scanner(System.in);
+	    //OutputStreamWriter osw = new OutputStreamWriter(os);
+	    //BufferedWriter bw = new BufferedWriter(osw);
+	    System.out.print("Enter user name: ");
+	    String username = sc.nextLine();
+	    out.println(username);
+	    
+	    Runnable listener = () -> {
+		try{
+		    
+		    String userInput;
+		    while((userInput = br.readLine()) != null)
+			{
+			   System.out.println(userInput);
+			}
+		    System.exit(0);
+      	        }//end first try block
+    
+		catch(IOException e)
+		    {
+			System.out.println("Exception thrown");
+		    }
+	    };
+ 
+      	    new Thread(listener).start();
+	    while(true){
+		out.println(sc.nextLine());
+	    }
+	}
+    }//end main
+}//end class
